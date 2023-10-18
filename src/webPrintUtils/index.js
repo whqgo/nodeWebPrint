@@ -1,7 +1,7 @@
 /*
  * @Author: whq
  * @Date: 2023-02-21 16:03:41
- * @LastEditTime: 2023-10-16 13:47:15
+ * @LastEditTime: 2023-10-16 17:19:54
  * @LastEditors: whq
  * @Description: 
  * @FilePath: \nodedemo1\src\webPrintUtils\index.js
@@ -17,8 +17,9 @@
 const Printer = require('./printer.class')
 const Usb = require('./usb.class')
 const Tspl = require('./tspl.class')
-const bitmap_nodejs = require('./bitmap_nodejs')
 const { encode } = require('GBKCodec')
+
+const bitmap_nodejs = require('./bitmap_nodejs')
 const { execFile } = require('child_process')
 const path = require('path')
 
@@ -59,10 +60,12 @@ const getSubstringFun = (data, maxc = 4, maxe = 4) => {
  */
 const getLabelPrint = async (data, type) => {
 
+
+    // 实例化 一个 80mm, 40mm的画布
     const print = new Printer({
         connection: new Usb,
         language: new Tspl({
-            size: "80mm, 40mm",
+            size: "70mm, 40mm",
             gap: "2mm, 0mm",
             encoder: encode
         })
@@ -70,46 +73,52 @@ const getLabelPrint = async (data, type) => {
     // dialog.showMessageBox({ type: 'error', title: `请检查打印机`, message: state });
     switch (type) {
         case 'label':// 普通布局
-            let strArr = await getSubstringFun(data.n, 5, 8)
-            if (data.c.length >= 20) {
-                await print.barcode(30, 20, '120', data.c, false, 1)
-            } else if (data.c.length < 20 && data.c.length >= 15) {
-                await print.barcode(30, 20, '120', data.c, false, 2)
-            } else {
-                await print.barcode(30, 20, '120', data.c, false, 3)
-            }
+            // 1.
+            // let strArr = await getSubstringFun(data.n, 5, 8)
+            // if (data.c.length >= 20) {
+            //     await print.barcode(30, 20, '120', data.c, false, 1)
+            // } else if (data.c.length < 20 && data.c.length >= 15) {
+            //     await print.barcode(30, 20, '120', data.c, false, 2)
+            // } else {
+            //     await print.barcode(30, 20, '120', data.c, false, 3)
+            // }
 
-            if (data.c.length >= 16) {
-                await print.text(30, 150, '代码:' + data.c, 1, 'TSS24.BF2')
-            } else {
-                await print.text(30, 150, '代码:' + data.c, 2, 'TSS24.BF2')
-            }
+            // if (data.c.length >= 16) {
+            //     await print.text(30, 150, '代码:' + data.c, 1, 'TSS24.BF2')
+            // } else {
+            //     await print.text(30, 150, '前端精湛掌握')
+            // }
 
-            await print.text(30, 200, '名称:' + strArr[0], 2, 'TSS24.BF2')
-            if (strArr.length >= 2) {
-                for (let index = 1; index < strArr.length; index++) {
-                    const strelement = strArr[index];
-                    await print.text(30, 200 + (index * 50), strelement, 2, 'TSS24.BF2')
-                }
-            }
-            await print.print();
+            // await print.text(30, 200, '名称:' + strArr[0], 2, 'TSS24.BF2')
+            // if (strArr.length >= 2) {
+            //     for (let index = 1; index < strArr.length; index++) {
+            //         const strelement = strArr[index];
+            //         await print.text(30, 200 + (index * 50), strelement, 2, 'TSS24.BF2')
+            //     }
+            // }
 
-            // // const bitmap = await bitmap_nodejs(resolve("./github80x80.png"), 80, 80);
+
+            // const bitmap = await bitmap_nodejs(resolve("./img/ewm.jpg"), 80, 80);
             // await print
-            //     // .bitmap(5, 0, 10, 80, bitmap)
-
-            //     // .block(20, 50, 200, 100, '中文显示', 2, 8)
-            //     // .bar(5, 96, 560, 4)
+            //     .bitmap(5, 0, 10, 80, bitmap)
+            //     .block(20, 50, 200, 100, '中文显示', 2, 8)
+            //     // // .bar(5, 96, 560, 4)
             //     // .qrcode(5, 110, "https://github.com/lilindog") // 二维码
-            //     .barcode(20, 20, '120', data.id, false, 3)
-            //     .text(20, 150, '名称：' + data.n, 2, 'TSS24.BF2')
-            //     .text(20, 210, '代码：' + data.c, 2, 'TSS24.BF2')
-            //     // .bar(5, 290, 560, 4)
-            //     // .text(20, 316, data.lable)
-            //     .print();
+            //     // .barcode(20, 20, '120', data.id, false, 3)
+            //     // .text(20, 150, '名称：' + data.n, 2, 'TSS24.BF2')
+            //     // .text(20, 210, '代码：' + data.c, 2, 'TSS24.BF2')
+            //     // // .bar(5, 290, 560, 4)
+            //     // // .text(20, 316, data.lable)
+            //     // .print();
+
+            //     await print.print();
 
 
-
+            // 2. 
+            await print.text(40, 10, '前端精湛掌握', 2, 'TSS24.BF2')
+            await print.bar(5, 96, 560, 4)
+            await print.qrcode(40, 110, "http://weixin.qq.com/r/zRHk-BjEZUUarVyf90Tf") // 二维码
+            await print.print();
             break;
         case 'smlabel':// 小布局
             // await print.barcode(240, 15, '120', data.id, false, 1)
@@ -195,8 +204,8 @@ const getBillPrint = async (currentEnv) => {
     //     url = path + 'resources\\init.exe'
     //     execFile(url)
     // } else {
-        url = path.join(__dirname, '..', '..', 'public/init.exe')
-        execFile(url)
+    url = path.join(__dirname, '..', '..', 'public/init.exe')
+    execFile(url)
     // }
     // dialog.showMessageBox({ type: 'error', title: `提示：`, message: url });
 };
